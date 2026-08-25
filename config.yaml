@@ -1,0 +1,75 @@
+# トレーディングカード海外転売リサーチダッシュボード設定
+# このファイルを config.yaml にコピーして利用してください。
+
+database:
+  path: data/trading_cards.db
+
+http:
+  request_interval: 3.0
+  request_timeout: 20
+  max_retries: 3
+  user_agent: "trading-card-dashboard/0.1 (+research dashboard)"
+
+fees:
+  ebay: 0.1325
+  tcgplayer: 0.10
+  cardmarket: 0.05
+  shipping_cost_jpy: 500
+  fx_markup: 0.03
+
+analysis:
+  min_profit_rate: 20.0
+  hot_profit_rate: 50.0
+
+exchange:
+  api_url: "https://open.er-api.com/v6/latest/USD"
+
+catalog:
+  tcgdex_base_url: "https://api.tcgdex.net/v2"
+  tcgdex_locale: "en"
+  ygoprodeck_url: "https://db.ygoprodeck.com/api/v7/cardinfo.php"
+  onepiece_url: "https://api.onepiece-cardgame.dev/api/cards"
+
+# デモ用の疑似価格を生成する（外部API不要でダッシュボードを動作させる）
+mock:
+  enabled: true
+
+# 価格ソース。url_template を設定し enabled: true にすると
+# GenericPriceScraper による実スクレイピングが有効になる。
+# プレースホルダ: {query} (カード名), {card_key}
+# extra.json_path: JSONレスポンス内の価格へのドットパス
+# extra.parser: "json" | "html"
+# extra.css / extra.css_attr: HTMLパーサ用
+price_sources:
+  buy:
+    - name: mercari
+      label: メルカリ
+      currency: JPY
+      url_template: ""
+      enabled: false
+    - name: amazon
+      label: Amazon
+      currency: JPY
+      url_template: ""
+      enabled: false
+    - name: suruga
+      label: 駿河屋
+      currency: JPY
+      url_template: ""
+      enabled: false
+  sell:
+    - name: tcgplayer
+      label: TCGPlayer
+      currency: USD
+      url_template: ""
+      enabled: false
+    - name: ebay
+      label: eBay
+      currency: USD
+      url_template: ""
+      enabled: false
+    - name: cardmarket
+      label: Cardmarket
+      currency: EUR
+      url_template: ""
+      enabled: false
