@@ -50,6 +50,7 @@ def compute_spreads(
         cid = card["id"]
 
         buy_price_jpy = None
+        buy_source = ""
         for source in cfg.buy_sources:
             rec = latest.get((cid, source.name))
             if rec is None:
@@ -58,9 +59,9 @@ def compute_spreads(
             if rate is None:
                 continue
             price_jpy = float(rec["price"]) * rate
-            buy_price_jpy = (
-                min(price_jpy, buy_price_jpy) if buy_price_jpy else price_jpy
-            )
+            if buy_price_jpy is None or price_jpy < buy_price_jpy:
+                buy_price_jpy = price_jpy
+                buy_source = source.name
 
         sell_price_jpy = None
         sell_source = ""
@@ -102,6 +103,8 @@ def compute_spreads(
                 "net_profit_jpy": round(net),
                 "profit_rate_pct": round(rate_pct, 1),
                 "source_sell": sell_source,
+                "source_buy": buy_source,
+
                 "exchange_rate": round(fx_rate, 2),
                 "image_url": card["image_url"] or "",
             }

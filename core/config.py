@@ -47,6 +47,7 @@ DEFAULTS: dict = {
                 "label": "メルカリ",
                 "currency": "JPY",
                 "url_template": "",
+                "link_template": "https://jp.mercari.com/search?keyword={query}",
                 "enabled": False,
             },
             {
@@ -54,6 +55,7 @@ DEFAULTS: dict = {
                 "label": "Amazon",
                 "currency": "JPY",
                 "url_template": "",
+                "link_template": "https://www.amazon.co.jp/s?k={query}",
                 "enabled": False,
             },
             {
@@ -61,6 +63,7 @@ DEFAULTS: dict = {
                 "label": "駿河屋",
                 "currency": "JPY",
                 "url_template": "",
+                "link_template": "https://www.suruga-ya.jp/search?category=&search_word={query}",
                 "enabled": False,
             },
         ],
@@ -70,6 +73,7 @@ DEFAULTS: dict = {
                 "label": "TCGPlayer",
                 "currency": "USD",
                 "url_template": "",
+                "link_template": "https://www.tcgplayer.com/search/all/product?q={query}",
                 "enabled": False,
             },
             {
@@ -77,6 +81,7 @@ DEFAULTS: dict = {
                 "label": "eBay",
                 "currency": "USD",
                 "url_template": "",
+                "link_template": "https://www.ebay.com/sch/i.html?_nkw={query}",
                 "enabled": False,
             },
             {
@@ -84,6 +89,7 @@ DEFAULTS: dict = {
                 "label": "Cardmarket",
                 "currency": "EUR",
                 "url_template": "",
+                "link_template": "https://www.cardmarket.com/en/AllProducts?searchString={query}",
                 "enabled": False,
             },
         ],
@@ -133,6 +139,18 @@ class PriceSource:
     url_template: str = ""
     enabled: bool = False
     extra: dict = field(default_factory=dict)
+    link_template: str = ""
+
+    def search_url(self, card_name: str) -> str | None:
+        """Return a human-clickable search URL for the card, if configured."""
+        import re
+        import urllib.parse
+
+        if not self.link_template:
+            return None
+        query = re.sub(r"[^0-9A-Za-z ]", "", card_name).strip()
+        return self.link_template.format(query=urllib.parse.quote(query))
+
 
 
 @dataclass
@@ -195,6 +213,13 @@ def load_config(path: str | Path | None = None) -> Config:
                     url_template=s.get("url_template", ""),
                     enabled=bool(s.get("enabled", False)),
                     extra=s.get("extra", {}),
+                    link_template=s.get(
+                        "link_template",
+                        next(
+                            (d["link_template"] for d in DEFAULTS["price_sources"][side] if d["name"] == s.get("name")),
+                            "",
+                        ),
+                    ),
                 )
             )
 

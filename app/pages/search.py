@@ -91,6 +91,8 @@ def render() -> None:
                     continue
                 price = float(row["price"])
                 side = "仕入れ" if source.side == "buy" else "販売"
+                url = source.search_url(sel["name"]) or ""
+                link = f"[{source.label}を開く]({url})" if url else source.label
                 rows.append(
                     {
                         "区分": side,
@@ -98,6 +100,7 @@ def render() -> None:
                         "通貨": source.currency,
                         "価格": format_jpy(price) if source.currency == "JPY" else f"{price:,.2f} {source.currency}",
                         "取得日時": row["fetched_at"],
+                        "リンク": link,
                     }
                 )
             st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)

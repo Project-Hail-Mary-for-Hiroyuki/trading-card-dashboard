@@ -40,6 +40,9 @@ mock:
 # extra.json_path: JSONレスポンス内の価格へのドットパス
 # extra.parser: "json" | "html"
 # extra.css / extra.css_attr: HTMLパーサ用
+# link_template: UIに表示する検索リンク（{query}=カード名）。
+#   未設定の場合はソース名に対応する既定の検索URLが使われる。
+
 price_sources:
   buy:
     - name: mercari

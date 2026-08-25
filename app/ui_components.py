@@ -85,6 +85,16 @@ def kpi_card(label: str, value: str, help: str | None = None) -> None:
     )
 
 
+def _source_link_markdown(source_name: str, card_name: str, cfg: Config) -> str:
+    src = cfg.source(source_name)
+    if not src:
+        return source_name
+    url = src.search_url(card_name) or ""
+    if url:
+        return f"[{src.label}を開く]({url})"
+    return src.label
+
+
 def render_ranking_table(df: pd.DataFrame, cfg: Config, with_set: bool = True):
     if df.empty:
         return pd.DataFrame()
@@ -113,11 +123,23 @@ def render_ranking_table(df: pd.DataFrame, cfg: Config, with_set: bool = True):
     out["判定"] = out["profit_rate_pct"].map(verdict_col)
     out["売却先"] = out["source_sell"].map(lambda s: _source_label(s, cfg))
 
+    # 仕入れ先・売却先への検索リンク（st.dataframeがmarkdownリンクを描画）
+    out["仕入れリンク"] = [
+        _source_link_markdown(b, n, cfg)
+        for b, n in zip(out["source_buy"], out["card_name"])
+    ]
+    out["売却リンク"] = [
+        _source_link_markdown(s, n, cfg)
+        for s, n in zip(out["source_sell"], out["card_name"])
+    ]
+
+
 
     keep = ["カテゴリ", "カード名"]
     if with_set:
         keep.append("セット")
-    keep += ["仕入価格", "売却価格", "手数料率", "純利益", "利益率", "判定", "売却先"]
+    keep += ["仕入価格", "売却価格", "手数料率", "純利益", "利益率", "判定", "売却先",
+             "仕入れリンク", "売却リンク"]
 
     styled = (
         out[keep]
