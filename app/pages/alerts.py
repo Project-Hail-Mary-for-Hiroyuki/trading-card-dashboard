@@ -5,7 +5,7 @@ import json
 import pandas as pd
 import streamlit as st
 
-from app.ui_components import get_config, get_connection, render_ranking_table
+from app.ui_components import get_config, get_connection, link_column_config, render_ranking_table
 from core import analysis, database as db
 from core.models import AlertSettings, Category
 
@@ -84,4 +84,10 @@ def render() -> None:
         st.info("条件に合致するカードがありません")
         return
 
-    st.dataframe(render_ranking_table(matched, cfg), width="stretch", height=480)
+    st.dataframe(
+        render_ranking_table(matched, cfg),
+        width="stretch",
+        height=480,
+        column_config=link_column_config(),
+        hide_index=True,
+    )

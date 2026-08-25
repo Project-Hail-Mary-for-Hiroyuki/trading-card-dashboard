@@ -6,6 +6,7 @@ from app.ui_components import (
     get_config,
     get_connection,
     kpi_card,
+    link_column_config,
     plot_rate_distribution,
     render_ranking_table,
 )
@@ -51,7 +52,13 @@ def render() -> None:
 
     st.subheader("利益率ランキング（上位20）")
     top = df.nlargest(20, "profit_rate_pct")
-    st.dataframe(render_ranking_table(top, cfg), width="stretch", height=460)
+    st.dataframe(
+        render_ranking_table(top, cfg),
+        width="stretch",
+        height=460,
+        column_config=link_column_config(),
+        hide_index=True,
+    )
 
     st.divider()
     st.subheader("利益率の分布")

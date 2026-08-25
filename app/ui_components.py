@@ -85,14 +85,23 @@ def kpi_card(label: str, value: str, help: str | None = None) -> None:
     )
 
 
-def _source_link_markdown(source_name: str, card_name: str, cfg: Config) -> str:
+def _source_link_url(source_name: str, card_name: str, cfg: Config) -> str | None:
     src = cfg.source(source_name)
     if not src:
-        return source_name
-    url = src.search_url(card_name) or ""
-    if url:
-        return f"[{src.label}を開く]({url})"
-    return src.label
+        return None
+    return src.search_url(card_name)
+
+
+# st.dataframe 用のリンク列設定（セルのURLを「開く」表示でクリック可能にする）
+def link_column_config() -> dict:
+    return {
+        "仕入れリンク": st.column_config.LinkColumn(
+            "仕入れ ⧉", display_text="🔍 開く"
+        ),
+        "売却リンク": st.column_config.LinkColumn(
+            "売却 ⧉", display_text="🔍 開く"
+        ),
+    }
 
 
 def render_ranking_table(df: pd.DataFrame, cfg: Config, with_set: bool = True):
@@ -123,13 +132,13 @@ def render_ranking_table(df: pd.DataFrame, cfg: Config, with_set: bool = True):
     out["判定"] = out["profit_rate_pct"].map(verdict_col)
     out["売却先"] = out["source_sell"].map(lambda s: _source_label(s, cfg))
 
-    # 仕入れ先・売却先への検索リンク（st.dataframeがmarkdownリンクを描画）
+    # 仕入れ先・売却先への検索リンク（LinkColumn用に生URLを入れる）
     out["仕入れリンク"] = [
-        _source_link_markdown(b, n, cfg)
+        _source_link_url(b, n, cfg)
         for b, n in zip(out["source_buy"], out["card_name"])
     ]
     out["売却リンク"] = [
-        _source_link_markdown(s, n, cfg)
+        _source_link_url(s, n, cfg)
         for s, n in zip(out["source_sell"], out["card_name"])
     ]
 
